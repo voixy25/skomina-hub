@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://skomina.si/sitemap.xml
