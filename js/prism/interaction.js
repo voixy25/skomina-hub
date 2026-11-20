@@ -11,7 +11,7 @@
 
 const LAMP_EASE = 0.12;
 const ORBIT_EASE = 0.08;
-const SPIN_EASE = 0.14;
+const SPIN_EASE = 0.09;
 const MAX_SPIN_PITCH = (65 * Math.PI) / 180;
 const IDLE_AFTER_S = 6;
 const AUTO_PERIOD_S = 18;

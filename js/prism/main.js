@@ -19,8 +19,8 @@ import { createGlass } from './glass.js';
 
 const RESIZE_DEBOUNCE_MS = 60;
 const MAX_DT = 0.1;
-const WHEEL_SENSITIVITY = 0.0055;
-const TOUCH_ROTATE_SENSITIVITY = 0.0075;
+const WHEEL_SENSITIVITY = 0.0022;
+const TOUCH_ROTATE_SENSITIVITY = 0.0035;
 
 function queryDom() {
   const dom = {
