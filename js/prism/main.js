@@ -158,7 +158,8 @@ function start() {
   const glassActive = () => !!glass && !glass.lost && glassDrew;
 
   function relayout() {
-    canScroll = document.documentElement.scrollHeight > window.innerHeight + 4;
+    const locked = window.getComputedStyle(document.documentElement).overflowY === 'hidden';
+    canScroll = !locked && document.documentElement.scrollHeight > window.innerHeight + 4;
     const next = buildLayout({
       ...measurePlacement(dom),
       devicePixelRatio: window.devicePixelRatio,
