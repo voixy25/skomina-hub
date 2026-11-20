@@ -5,20 +5,18 @@
   var COPIED_MS = 1600;
   var TOAST_MS = 1800;
   var LIVE_DELAY_MS = 50;
-  var IS_APPLE = /Mac|iPhone|iPad/.test(
-    (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || ''
-  );
-
-  var SHORTCUT_LABEL = IS_APPLE ? '⌘K' : 'Alt K';
 
   var SL = Object.freeze({
     docTitle: 'Domen Skomina — Spletni razvijalec & študent računalništva | skomina.si',
-    docDesc: 'Domen Skomina — Študent računalništva in neodvisni spletni razvijalec. Vstopna točka za portfelj in kontakt.',
+    docDesc: 'Domen Skomina — Študent računalništva in neodvisni spletni razvijalec. Vstopna točka za portfolio in kontakt.',
     statusAvailable: 'Odprt za projekte',
     location: 'Ljubljana & Nova Gorica, Slovenija',
     tagline: 'Študent računalništva (FRI) & samostojni spletni razvijalec. Gradim bliskovito hitre, dovršene in zanesljive digitalne rešitve.',
-    card1Chip: 'Storitve & Portfelj',
-    card1Desc: 'Osrednji portfelj spletnega razvoja. Pregled tehnologij, arhitektura rešitev in neposredno naročilo projektov.',
+    card1Chip: 'Storitve & Portfolio',
+    card1Desc: 'Osrednji portfolio spletnega razvoja. Pregled projektov, arhitektura rešitev in neposredno naročilo.',
+    tag1: 'Spletna mesta',
+    tag2: 'Oblikovanje',
+    tag3: 'Aplikacije',
     card1Cta: 'Odpri spletno mesto',
     card4Chip: 'Stik & Povezave',
     contactTitle: 'Stopite v stik',
@@ -30,7 +28,6 @@
     langLabel: 'Izbira jezika',
     dirLabel: 'Imenik spletnih mest',
     copyAria: 'Kopiraj e-poštni naslov',
-    kbdAria: 'Kopiraj e-poštni naslov (' + SHORTCUT_LABEL + ')',
     githubAria: 'GitHub profil',
     mailAria: 'Pošlji e-pošto'
   });
@@ -42,7 +39,10 @@
     location: 'Ljubljana & Nova Gorica, Slovenia',
     tagline: 'Computer Science student (FRI) & independent web developer building fast, modern, and reliable digital experiences.',
     card1Chip: 'Services & Portfolio',
-    card1Desc: 'Core web development landing hub. Tech stack breakdown, architectural approach, and client onboarding.',
+    card1Desc: 'Core web development portfolio. Project showcase, architectural approach, and client onboarding.',
+    tag1: 'Websites',
+    tag2: 'Design',
+    tag3: 'Web Apps',
     card1Cta: 'Visit site',
     card4Chip: 'Direct Contact',
     contactTitle: "Let's connect",
@@ -54,7 +54,6 @@
     langLabel: 'Language',
     dirLabel: 'Site directory',
     copyAria: 'Copy email address',
-    kbdAria: 'Copy email address (' + SHORTCUT_LABEL + ')',
     githubAria: 'GitHub profile',
     mailAria: 'Send an email'
   });
@@ -191,7 +190,7 @@
 
   function copyEmail() {
     var src = document.getElementById('email-str');
-    var email = src ? (src.getAttribute('data-email') || src.textContent.trim().replace(/\(at\)/g, '@')) : 'info@skomina.si';
+    var email = src ? (src.getAttribute('data-email') || src.textContent.trim()) : 'info@skomina.si';
     if (!email) return;
     writeClipboard(email).then(function (ok) {
       if (ok) flashCopyButton();
@@ -208,14 +207,6 @@
   function onKeydown(e) {
     if (e.repeat || e.defaultPrevented) return;
     var key = (e.key || '').toLowerCase();
-    var combo = IS_APPLE
-      ? e.metaKey && !e.ctrlKey && !e.altKey
-      : e.altKey && !e.metaKey && !e.ctrlKey;
-    if (combo && !e.shiftKey && key === 'k') {
-      e.preventDefault();
-      copyEmail();
-      return;
-    }
     var plain = !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey;
     var inCard = e.target && e.target.closest && e.target.closest('.contact-card');
     if (plain && key === 'c' && inCard && !isTypingTarget(e.target)) copyEmail();
@@ -235,13 +226,6 @@
       });
     });
     bind('copy-btn', copyEmail);
-    bind('kbd-btn', copyEmail);
-    var chip = document.getElementById('kbd-btn');
-    if (chip) {
-      chip.setAttribute('aria-keyshortcuts', IS_APPLE ? 'Meta+K' : 'Alt+K');
-      var kbd = chip.querySelector('kbd');
-      if (kbd) kbd.textContent = SHORTCUT_LABEL;
-    }
     document.addEventListener('keydown', onKeydown);
     setLanguage(detectLang());
   }

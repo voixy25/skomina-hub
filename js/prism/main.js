@@ -19,6 +19,8 @@ import { createGlass } from './glass.js';
 
 const RESIZE_DEBOUNCE_MS = 60;
 const MAX_DT = 0.1;
+const WHEEL_SENSITIVITY = 0.0055;
+const TOUCH_ROTATE_SENSITIVITY = 0.0075;
 
 function queryDom() {
   const dom = {
@@ -50,7 +52,9 @@ function createVisibility(stage, onChange) {
   return { active: () => inView && !document.hidden };
 }
 
-function bindPointer(dom, interaction, wake) {
+function bindPointer(dom, interaction, wake, getCanScroll) {
+  let twoFinger = null;
+
   const toStage = (clientX, clientY) => {
     const r = dom.stage.getBoundingClientRect();
     if (r.width <= 0 || r.height <= 0) return;
@@ -60,14 +64,70 @@ function bindPointer(dom, interaction, wake) {
     interaction.pointer(x, y, performance.now() / 1000);
     wake();
   };
+
   window.addEventListener('pointermove', (e) => {
     if (e.isPrimary) toStage(e.clientX, e.clientY);
   }, { passive: true });
   window.addEventListener('pointerdown', (e) => toStage(e.clientX, e.clientY), { passive: true });
+
+  // Two-finger trackpad scroll / mouse wheel rotates the 3D prism when the page fits in 100vh.
+  window.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) return; // preserve browser pinch-to-zoom
+    const scale = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+    const dx = e.deltaX * scale;
+    const dy = e.deltaY * scale;
+    if (!dx && !dy) return;
+    if (!getCanScroll()) {
+      if (e.cancelable) e.preventDefault();
+      interaction.rotate(dx * WHEEL_SENSITIVITY, dy * WHEEL_SENSITIVITY, performance.now() / 1000);
+      wake();
+    } else if (Math.abs(dx) > Math.abs(dy)) {
+      if (e.cancelable) e.preventDefault();
+      interaction.rotate(dx * WHEEL_SENSITIVITY, 0, performance.now() / 1000);
+      wake();
+    }
+  }, { passive: false });
+
+  const twoFingerState = (touches) => ({
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+    dist: Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY),
+  });
+
+  window.addEventListener('touchstart', (e) => {
+    twoFinger = e.touches.length === 2 ? twoFingerState(e.touches) : null;
+  }, { passive: true });
+
   window.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      const next = twoFingerState(e.touches);
+      if (twoFinger) {
+        const dx = next.x - twoFinger.x;
+        const dy = next.y - twoFinger.y;
+        const dDist = Math.abs(next.dist - twoFinger.dist);
+        // Preserve pinch-to-zoom when finger spacing changes more than parallel pan.
+        if (dDist <= Math.hypot(dx, dy) * 0.6) {
+          if (e.cancelable) e.preventDefault();
+          interaction.rotate(
+            -dx * TOUCH_ROTATE_SENSITIVITY,
+            -dy * TOUCH_ROTATE_SENSITIVITY,
+            performance.now() / 1000,
+          );
+          wake();
+        }
+      }
+      twoFinger = next;
+      return;
+    }
+    twoFinger = null;
     const t = e.touches[0];
     if (t) toStage(t.clientX, t.clientY);
-  }, { passive: true });
+  }, { passive: false });
+
+  const clearTwoFinger = () => { twoFinger = null; };
+  window.addEventListener('touchend', clearTwoFinger, { passive: true });
+  window.addEventListener('touchcancel', clearTwoFinger, { passive: true });
+
   document.documentElement.addEventListener('pointerleave', () => {
     interaction.leave();
     wake();
@@ -93,10 +153,12 @@ function start() {
   let rafId = 0;
   let last = 0;
   let glassDrew = true;
+  let canScroll = false;
 
   const glassActive = () => !!glass && !glass.lost && glassDrew;
 
   function relayout() {
+    canScroll = document.documentElement.scrollHeight > window.innerHeight + 4;
     const next = buildLayout({
       ...measurePlacement(dom),
       devicePixelRatio: window.devicePixelRatio,
@@ -117,7 +179,7 @@ function start() {
     const dt = Math.min(MAX_DT, last ? now - last : 1 / 60);
     last = now;
     const state = interaction.step(dt, now, layout.mobile);
-    const camera = buildCamera(layout, state.orbit[0], state.orbit[1]);
+    const camera = buildCamera(layout, state.orbit[0], state.orbit[1], state.spin[0], state.spin[1]);
     const lamp = lampForIncidence(layout, state.aim[0], state.aim[1]);
     const trace = traceSpectrum(layout, lamp);
     const useGlass = !!glass && !glass.lost;
@@ -151,7 +213,7 @@ function start() {
   new ResizeObserver(debouncedRelayout).observe(dom.wrapper);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout, relayout);
   reduceQuery.addEventListener('change', wake);
-  bindPointer(dom, interaction, wake);
+  bindPointer(dom, interaction, wake, () => canScroll);
   relayout();
 }
 

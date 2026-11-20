@@ -11,6 +11,7 @@
 export const FOV_DEG = 48;
 export const MAX_ORBIT_DEG = 3.5;
 const DEG = Math.PI / 180;
+const MAX_PITCH_RAD = 70 * DEG;
 const NEAR_FACTOR = 0.05;
 const FAR_FACTOR = 4;
 
@@ -80,12 +81,14 @@ function perspectiveWithOffset({ W, H, offsetX, offsetY, near, far }) {
  * @param {object} layout from buildLayout
  * @param {number} orbitX in [-1, 1], 0 at rest (pointer x * 2 - 1, eased)
  * @param {number} orbitY in [-1, 1], 0 at rest (pointer y * 2 - 1, eased)
+ * @param {number} spinYaw user horizontal rotation in radians (unrestricted)
+ * @param {number} spinPitch user vertical rotation in radians (clamped)
  */
-export function buildCamera(layout, orbitX = 0, orbitY = 0) {
+export function buildCamera(layout, orbitX = 0, orbitY = 0, spinYaw = 0, spinPitch = 0) {
   const { W, H, cx, cy } = layout;
   const D = H / 2 / Math.tan((FOV_DEG / 2) * DEG);
-  const yaw = clamp(orbitX, -1, 1) * MAX_ORBIT_DEG * DEG;
-  const pitch = -clamp(orbitY, -1, 1) * MAX_ORBIT_DEG * DEG;
+  const yaw = clamp(orbitX, -1, 1) * MAX_ORBIT_DEG * DEG + spinYaw;
+  const pitch = clamp(-clamp(orbitY, -1, 1) * MAX_ORBIT_DEG * DEG + spinPitch, -MAX_PITCH_RAD, MAX_PITCH_RAD);
   const cosPitch = Math.cos(pitch);
   const eye = [
     Math.sin(yaw) * cosPitch * D,
@@ -113,8 +116,10 @@ export function projectWorld(camera, wx, wy, wz) {
   const cxp = m[0] * wx + m[4] * wy + m[8] * wz + m[12];
   const cyp = m[1] * wx + m[5] * wy + m[9] * wz + m[13];
   const cw = m[3] * wx + m[7] * wy + m[11] * wz + m[15];
-  const nx = cxp / cw;
-  const ny = cyp / cw;
+  // Guard against points behind or on the camera plane (e.g. long light beams at steep yaw).
+  const safeW = Math.max(cw, camera.near);
+  const nx = cxp / safeW;
+  const ny = cyp / safeW;
   return [(nx * 0.5 + 0.5) * camera.W, (0.5 - ny * 0.5) * camera.H];
 }
 

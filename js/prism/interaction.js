@@ -11,6 +11,8 @@
 
 const LAMP_EASE = 0.12;
 const ORBIT_EASE = 0.08;
+const SPIN_EASE = 0.14;
+const MAX_SPIN_PITCH = (65 * Math.PI) / 180;
 const IDLE_AFTER_S = 6;
 const AUTO_PERIOD_S = 18;
 const AUTO_RADIUS = 0.34;
@@ -48,8 +50,9 @@ export function automaticPointer(timeSeconds) {
  * @param {{ reduceMotion: () => boolean }} options
  * @returns {{
  *   pointer(x:number, y:number, now:number): void,
+ *   rotate(dyaw:number, dpitch:number, now:number): void,
  *   leave(): void,
- *   step(dt:number, now:number, mobile:boolean): { aim:number[], orbit:number[], settled:boolean }
+ *   step(dt:number, now:number, mobile:boolean): { aim:number[], orbit:number[], spin:number[], settled:boolean }
  * }}
  */
 export function createInteraction({ reduceMotion }) {
@@ -57,6 +60,8 @@ export function createInteraction({ reduceMotion }) {
   let aim = DEFAULT_AIM;
   let orbitTarget = REST;
   let orbit = REST;
+  let spinTarget = REST;
+  let spin = REST;
   let lastMove = -Infinity;
   let isMobile = false;
 
@@ -73,6 +78,13 @@ export function createInteraction({ reduceMotion }) {
       lastMove = now;
       setTargets(x, y);
     },
+    rotate(dyaw, dpitch, now) {
+      lastMove = now;
+      spinTarget = Object.freeze([
+        spinTarget[0] + dyaw,
+        Math.min(MAX_SPIN_PITCH, Math.max(-MAX_SPIN_PITCH, spinTarget[1] + dpitch)),
+      ]);
+    },
     leave() {
       orbitTarget = REST;
     },
@@ -87,10 +99,12 @@ export function createInteraction({ reduceMotion }) {
       }
       const nextAim = easePair(aim, aimTarget, LAMP_EASE, dt);
       const nextOrbit = easePair(orbit, orbitTarget, ORBIT_EASE, dt);
-      const settled = nextAim === aim && nextOrbit === orbit;
+      const nextSpin = easePair(spin, spinTarget, SPIN_EASE, dt);
+      const settled = nextAim === aim && nextOrbit === orbit && nextSpin === spin;
       aim = nextAim;
       orbit = nextOrbit;
-      return Object.freeze({ aim, orbit, settled });
+      spin = nextSpin;
+      return Object.freeze({ aim, orbit, spin, settled });
     },
   };
 }

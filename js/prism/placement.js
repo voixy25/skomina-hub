@@ -6,14 +6,14 @@
  * dedicated `.prism-slot` between the hero and the cards.
  */
 
-const DESKTOP_MAX_SIDE = 440;
-const DESKTOP_MIN_SIDE = 220;
-const DESKTOP_WIDTH_RATIO = 0.3;
+const DESKTOP_MAX_SIDE = 580;
+const DESKTOP_MIN_SIDE = 260;
+const DESKTOP_WIDTH_RATIO = 0.42;
 const DESKTOP_MIN_STAGE_H = 640;
-const DESKTOP_X_RATIO = 0.74;
-const DESKTOP_BAND_MARGIN = 28;
-const MOBILE_MAX_SIDE = 340;
-const MOBILE_WIDTH_RATIO = 0.62;
+const DESKTOP_X_RATIO = 0.72;
+const DESKTOP_BAND_MARGIN = 16;
+const MOBILE_MAX_SIDE = 400;
+const MOBILE_WIDTH_RATIO = 0.74;
 const MOBILE_TAIL = 220;
 const TRIANGLE_HEIGHT = Math.sqrt(3) / 2;
 
@@ -29,13 +29,16 @@ function desktopPlacement(W, dom) {
   const grid = pageRect(dom.grid);
   const wrap = pageRect(dom.wrapper);
   const band = grid.top - meta.bottom - DESKTOP_BAND_MARGIN * 2;
+  const bandSide = Math.max(160, band / TRIANGLE_HEIGHT);
   const S = Math.max(
-    DESKTOP_MIN_SIDE,
-    Math.min(W * DESKTOP_WIDTH_RATIO, band / TRIANGLE_HEIGHT, DESKTOP_MAX_SIDE),
+    Math.min(DESKTOP_MIN_SIDE, bandSide),
+    Math.min(W * DESKTOP_WIDTH_RATIO, bandSide, DESKTOP_MAX_SIDE),
   );
   const R = S / Math.sqrt(3);
   const cx = Math.min(W * DESKTOP_X_RATIO, wrap.right - S * 0.42);
-  const cy = meta.bottom + DESKTOP_BAND_MARGIN + R;
+  // Vertically centre the triangle's [cy - R, cy + R/2] extent inside the band.
+  const bandMid = (meta.bottom + grid.top) / 2;
+  const cy = Math.max(meta.bottom + DESKTOP_BAND_MARGIN + R, bandMid + R / 4);
   return { W, H, S, cx, cy };
 }
 
