@@ -13,19 +13,13 @@
 
   var SL = Object.freeze({
     docTitle: 'Domen Skomina — Spletni razvijalec & študent računalništva | skomina.si',
-    docDesc: 'Domen Skomina — Študent računalništva in neodvisni spletni razvijalec. Vstopna točka za portfelj, študije primerov in vinarstvo.',
+    docDesc: 'Domen Skomina — Študent računalništva in neodvisni spletni razvijalec. Vstopna točka za portfelj in kontakt.',
     statusAvailable: 'Odprt za projekte',
     location: 'Ljubljana & Nova Gorica, Slovenija',
     tagline: 'Študent računalništva (FRI) & samostojni spletni razvijalec. Gradim bliskovito hitre, dovršene in zanesljive digitalne rešitve.',
     card1Chip: 'Storitve & Portfelj',
-    card1Desc: 'Osrednji portfelj spletnega in AI razvoja. Pregled tehnologij, arhitektura rešitev in neposredno naročilo projektov.',
+    card1Desc: 'Osrednji portfelj spletnega razvoja. Pregled tehnologij, arhitektura rešitev in neposredno naročilo projektov.',
     card1Cta: 'Odpri spletno mesto',
-    card2Chip: 'Študija primera',
-    card2Desc: 'Primer celovite produkcijske migracije, optimizacije zmogljivosti in statične arhitekture za podjetje Dimet d.o.o.',
-    card2Cta: 'Ogled študije',
-    card3Chip: 'Družinska zgodba & Izdelava',
-    card3Desc: 'Družinsko vinarstvo v Vipavski dolini. Rezervacije vodenih degustacij vin in prikaz premijskega oblikovanja v praksi.',
-    card3Cta: 'Vstop v klet',
     card4Chip: 'Stik & Povezave',
     contactTitle: 'Stopite v stik',
     contactSub: 'Neposredna komunikacija za nova sodelovanja ali vprašanja.',
@@ -33,7 +27,6 @@
     copyTooltip: 'Kopirano!',
     toastCopied: 'E-poštni naslov kopiran',
     toastFailed: 'Kopiranje ni uspelo',
-    footerNote: 'Gostovano kot statična rešitev na Cloudflare Pages. Brez piškotkov in brez sledenja.',
     langLabel: 'Izbira jezika',
     dirLabel: 'Imenik spletnih mest',
     copyAria: 'Kopiraj e-poštni naslov',
@@ -44,19 +37,13 @@
 
   var EN = Object.freeze({
     docTitle: 'Domen Skomina — Web Developer & CS Student | skomina.si',
-    docDesc: 'Domen Skomina — Computer Science student and independent web developer. Gateway to portfolio, case studies, and winery.',
+    docDesc: 'Domen Skomina — Computer Science student and independent web developer. Gateway to portfolio and direct contact.',
     statusAvailable: 'Available for projects',
     location: 'Ljubljana & Nova Gorica, Slovenia',
     tagline: 'Computer Science student (FRI) & independent web developer building fast, modern, and reliable digital experiences.',
     card1Chip: 'Services & Portfolio',
-    card1Desc: 'Core web development & AI landing hub. Tech stack breakdown, architectural approach, and client onboarding.',
+    card1Desc: 'Core web development landing hub. Tech stack breakdown, architectural approach, and client onboarding.',
     card1Cta: 'Visit site',
-    card2Chip: 'Case Study',
-    card2Desc: 'Complete production migration, extreme performance tuning, and static deployment for Dimet d.o.o.',
-    card2Cta: 'View case study',
-    card3Chip: 'Heritage & Craft',
-    card3Desc: 'Family winery rooted in the Vipava Valley. Tasting room reservations and live showcase of refined design craft.',
-    card3Cta: 'Enter the cellar',
     card4Chip: 'Direct Contact',
     contactTitle: "Let's connect",
     contactSub: 'Frictionless direct channel for contracts, collaborations, or questions.',
@@ -64,7 +51,6 @@
     copyTooltip: 'Copied!',
     toastCopied: 'Email address copied',
     toastFailed: 'Copy failed',
-    footerNote: 'Hosted as a zero-dependency static build on Cloudflare Pages. Zero cookies, zero tracking.',
     langLabel: 'Language',
     dirLabel: 'Site directory',
     copyAria: 'Copy email address',
@@ -98,8 +84,7 @@
   function detectLang() {
     var stored = readStoredLang();
     if (stored) return stored;
-    var nav = (navigator.language || '').toLowerCase();
-    return nav.indexOf('sl') === 0 ? 'sl' : 'en';
+    return 'sl';
   }
 
   function applyText(data) {
@@ -124,7 +109,9 @@
     setMeta('meta[name="description"]', 'content', data.docDesc);
     setMeta('meta[property="og:locale"]', 'content', LOCALES[lang]);
     setMeta('meta[property="og:title"]', 'content', data.docTitle.replace(/ \| skomina\.si$/, ''));
+    setMeta('meta[property="og:description"]', 'content', data.docDesc);
     setMeta('meta[name="twitter:title"]', 'content', data.docTitle.replace(/ \| skomina\.si$/, ''));
+    setMeta('meta[name="twitter:description"]', 'content', data.docDesc);
   }
 
   function applyButtons(lang) {
@@ -140,7 +127,7 @@
   }
 
   function setLanguage(lang) {
-    var safe = I18N[lang] ? lang : 'en';
+    var safe = I18N[lang] ? lang : 'sl';
     var data = I18N[safe];
     applyMeta(safe, data);
     applyText(data);
@@ -204,7 +191,7 @@
 
   function copyEmail() {
     var src = document.getElementById('email-str');
-    var email = src ? src.textContent.trim() : '';
+    var email = src ? (src.getAttribute('data-email') || src.textContent.trim().replace(/\(at\)/g, '@')) : 'info@skomina.si';
     if (!email) return;
     writeClipboard(email).then(function (ok) {
       if (ok) flashCopyButton();
