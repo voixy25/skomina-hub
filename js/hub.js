@@ -7,11 +7,11 @@
   var LIVE_DELAY_MS = 50;
 
   var SL = Object.freeze({
-    docTitle: 'Domen Skomina — Spletni razvijalec & študent računalništva | skomina.si',
-    docDesc: 'Domen Skomina — Študent računalništva in neodvisni spletni razvijalec. Vstopna točka za portfolio in kontakt.',
+    docTitle: 'Domen Skomina, spletni razvijalec & študent računalništva | skomina.si',
+    docDesc: 'Domen Skomina, študent računalništva in neodvisni spletni razvijalec. Vstopna točka za portfolio in kontakt.',
     statusAvailable: 'Odprt za projekte',
     location: 'Ljubljana & Nova Gorica, Slovenija',
-    tagline: 'Študent računalništva (FRI) & samostojni spletni razvijalec. Gradim bliskovito hitre, dovršene in zanesljive digitalne rešitve.',
+    tagline: 'Študent računalništva (FRI) & samostojni spletni razvijalec. Gradim hitre, dovršene in zanesljive digitalne rešitve.',
     card1Chip: 'Storitve & Portfolio',
     card1Desc: 'Osrednji portfolio spletnega razvoja. Pregled projektov, arhitektura rešitev in neposredno naročilo.',
     tag1: 'Spletna mesta',
@@ -33,20 +33,20 @@
   });
 
   var EN = Object.freeze({
-    docTitle: 'Domen Skomina — Web Developer & CS Student | skomina.si',
-    docDesc: 'Domen Skomina — Computer Science student and independent web developer. Gateway to portfolio and direct contact.',
+    docTitle: 'Domen Skomina, Web Developer & CS Student | skomina.si',
+    docDesc: 'Domen Skomina, Computer Science student and independent web developer. Gateway to portfolio and direct contact.',
     statusAvailable: 'Available for projects',
     location: 'Ljubljana & Nova Gorica, Slovenia',
-    tagline: 'Computer Science student (FRI) & independent web developer building fast, modern, and reliable digital experiences.',
+    tagline: 'Computer Science student (FRI) & independent web developer building fast, modern, and reliable digital solutions.',
     card1Chip: 'Services & Portfolio',
-    card1Desc: 'Core web development portfolio. Project showcase, architectural approach, and client onboarding.',
+    card1Desc: 'Main web development portfolio. Project overview, architectural approach, and client onboarding.',
     tag1: 'Websites',
     tag2: 'Design',
     tag3: 'Web Apps',
     card1Cta: 'Visit site',
     card4Chip: 'Direct Contact',
     contactTitle: "Let's connect",
-    contactSub: 'Frictionless direct channel for contracts, collaborations, or questions.',
+    contactSub: 'Direct channel for contracts, collaborations, or questions.',
     mailLabel: 'Email',
     copyTooltip: 'Copied!',
     toastCopied: 'Email address copied',
